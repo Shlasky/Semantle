@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>סמנטל | משחק המילים האולטימטיבי</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="light-mode">
+    <div class="app-container">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loader-container">
+                <div class="pulse-loader"></div>
+            </div>
+            <h2 id="loading-status">טוען את סמנטל</h2>
+            <p id="loading-message" class="loading-message">מאתר את המילים הטובות ביותר</p>
+        </div>
+
+        <!-- Main Game Interface -->
+        <div id="game-interface" class="game-interface hidden">
+            <header class="game-header">
+                <div class="brand">
+                    <div class="logo">S</div>
+                    <h1 class="logo-text">סמנטל</h1>
+                </div>
+                
+                <div class="header-controls">
+                    <button id="dark-mode-toggle" class="icon-button" aria-label="החלף מצב תצוגה">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button id="hint-btn" class="icon-button" aria-label="קבל רמז">
+                        <i class="fas fa-lightbulb"></i>
+                    </button>
+                    <button id="new-game-btn" class="icon-button" aria-label="משחק חדש">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button id="settings-btn" class="icon-button" aria-label="הגדרות">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button id="help-btn" class="icon-button" aria-label="עזרה">
+                        <i class="fas fa-question"></i>
+                    </button>
+                </div>
+            </header>
+
+            <main class="game-content">
+                <section class="input-section">
+                    <div class="search-container">
+                        <div class="input-wrapper">
+                            <input type="text" id="guess-input" placeholder="נחש מילה..." autocomplete="off">
+                            <button id="guess-btn">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+                        </div>
+                        <div id="message" class="message"></div>
+                    </div>
+                </section>
+
+                <div class="game-layout">
+                    <div class="game-column main-column">
+                        <section class="guesses-section glass-panel">
+                            <div class="section-header">
+                                <h2><i class="fas fa-history"></i> היסטוריית ניחושים</h2>
+                                <span class="tooltip" data-tooltip="הניחושים ממוינים לפי מידת הדמיון למילה המטרה">
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </div>
+                            <div class="content-wrapper">
+                                <div class="table-container">
+                                    <table class="guesses-table">
+                                        <thead>
+                                            <tr>
+                                                <th>מילה</th>
+                                                <th>דמיון</th>
+                                                <th>דירוג</th>
+                                                <th>אחוזון</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="guesses-list">
+                                            <!-- Guesses will be added here dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="no-guesses-message" class="no-guesses-message">
+                                    <div class="empty-state">
+                                        <i class="fas fa-search fa-2x"></i>
+                                        <p>עדיין אין ניחושים. התחל לגלות את המילה!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    
+                    <div class="game-column side-column">
+                        <section class="last-guess-section glass-panel">
+                            <div class="section-header">
+                                <h2><i class="fas fa-star"></i> הניחוש האחרון</h2>
+                            </div>
+                            <div id="last-guess-card" class="last-guess-card hidden">
+                                <div class="last-guess-word" id="last-guess-word">-</div>
+                                <div class="stats-container">
+                                    <div class="stat-item">
+                                        <div class="stat-label">דמיון</div>
+                                        <div class="stat-value" id="last-guess-similarity">-</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">דירוג</div>
+                                        <div class="stat-value" id="last-guess-rank">-</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-label">אחוזון</div>
+                                        <div class="stat-value" id="last-guess-percentile">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="no-last-guess" class="no-last-guess">
+                                <p>נחש מילה כדי לראות את התוצאה</p>
+                            </div>
+                        </section>
+
+                        <section class="progress-section glass-panel">
+                            <div class="section-header">
+                                <h2><i class="fas fa-chart-line"></i> התקדמות</h2>
+                            </div>
+                            <div class="progress-visualization">
+                                <div class="progress-container">
+                                    <div class="progress-bar" id="progress-bar"></div>
+                                </div>
+                                <div class="progress-stats">
+                                    <div class="progress-label" id="progress-label">0%</div>
+                                    <div class="progress-description">קרבה למילת המטרה</div>
+                                </div>
+                            </div>
+                        </section>
+                        
+                        <section class="tips-section glass-panel">
+                            <div class="section-header">
+                                <h2><i class="fas fa-lightbulb"></i> טיפים</h2>
+                            </div>
+                            <div class="tips-content">
+                                <div class="tip">
+                                    <p>חפש מילים נרדפות או מאותו תחום סמנטי</p>
+                                </div>
+                                <div class="tip">
+                                    <p>ככל שהאחוזון גבוה יותר, אתה קרוב יותר למטרה</p>
+                                </div>
+                                <div class="tip">
+                                    <p><i class="fas fa-lightbulb tip-icon"></i> לחץ על כפתור הרמז לקבלת האות הראשונה</p>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="game-footer">
+                <div class="footer-content">
+                    <p class="copyright">סמנטל &copy; <span id="current-year"></span></p>
+                    <div class="version">גרסה 2.0</div>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-cog"></i> הגדרות</h2>
+                    <button id="close-settings" class="close-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-group">
+                        <label for="active-words-input">מילים פעילות במשחק</label>
+                        <div class="range-slider-container">
+                            <input type="range" id="active-words-range" min="100" max="50000" step="100" class="range-slider">
+                            <input type="number" id="active-words-input" min="100" max="50000" step="100" class="range-value">
+                        </div>
+                        <p class="setting-description">מספר המילים שישמשו במשחק</p>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="precompute-input">מילים לחישוב מראש</label>
+                        <div class="range-slider-container">
+                            <input type="range" id="precompute-range" min="100" max="10000" step="100" class="range-slider">
+                            <input type="number" id="precompute-input" min="100" max="10000" step="100" class="range-value">
+                        </div>
+                        <p class="setting-description">מספר המילים הדומות ביותר שיחושבו מראש</p>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="min-length-input">אורך מינימלי למילה</label>
+                        <div class="range-slider-container">
+                            <input type="range" id="min-length-range" min="2" max="10" step="1" class="range-slider">
+                            <input type="number" id="min-length-input" min="2" max="10" step="1" class="range-value">
+                        </div>
+                        <p class="setting-description">אורך מינימלי למילים במשחק</p>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>מצב תצוגה</label>
+                        <div class="theme-selector">
+                            <button id="light-theme-btn" class="theme-btn active">
+                                <i class="fas fa-sun"></i>
+                                בהיר
+                            </button>
+                            <button id="dark-theme-btn" class="theme-btn">
+                                <i class="fas fa-moon"></i>
+                                כהה
+                            </button>
+                            <button id="auto-theme-btn" class="theme-btn">
+                                <i class="fas fa-magic"></i>
+                                אוטומטי
+                            </button>
+                        </div>
+                        <p class="setting-description">בחר תצוגה המתאימה לך</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="apply-settings" class="primary-btn">
+                        <i class="fas fa-check"></i>
+                        החל שינויים
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions Modal -->
+        <div id="instructions-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-question-circle"></i> איך משחקים?</h2>
+                    <button id="close-instructions" class="close-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body instructions-body">
+                    <div class="intro-section">
+                        <p class="intro-text">ברוכים הבאים לסמנטל - משחק המילים הסמנטי!</p>
+                        <p>המטרה היא לנחש את המילה הנסתרת באמצעות רמזים על קרבה סמנטית.</p>
+                    </div>
+                    
+                    <div class="instruction-section">
+                        <h3><i class="fas fa-gamepad"></i> חוקי המשחק</h3>
+                        <ul class="instruction-list">
+                            <li>
+                                <span class="instruction-highlight">נחש מילים:</span>
+                                הזן מילים בעברית וקבל משוב על הקרבה הסמנטית שלהן למילה הנסתרת.
+                            </li>
+                            <li>
+                                <span class="instruction-highlight">דמיון:</span>
+                                ציון דמיון גבוה יותר (ב-%) מציין מילה קרובה יותר במשמעות.
+                            </li>
+                            <li>
+                                <span class="instruction-highlight">דירוג:</span>
+                                מציג את המיקום של הניחוש שלך ביחס למילה הנסתרת (מיקום 1 = המילה עצמה).
+                            </li>
+                            <li>
+                                <span class="instruction-highlight">אחוזון:</span>
+                                מציג כמה אחוזים מכלל המילים רחוקים יותר מהניחוש שלך.
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="instruction-section">
+                        <h3><i class="fas fa-lightbulb"></i> אסטרטגיות מומלצות</h3>
+                        <ul class="instruction-list">
+                            <li>התחל עם מילים כלליות מתחומים שונים כדי "למפות" את המרחב הסמנטי.</li>
+                            <li>כאשר מילה מקבלת ציון גבוה, נסה מילים נרדפות או קשורות לאותו תחום.</li>
+                            <li>שים לב לצבעים - אדום מציין קרבה גבוהה, כחול מציין ריחוק.</li>
+                            <li>השתמש ברמז כאשר אתה תקוע, אך זכור שזה חושף את האות הראשונה בלבד.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="instruction-section example-section">
+                        <h3><i class="fas fa-star"></i> דוגמה</h3>
+                        <p>אם המילה הנסתרת היא "ספר", ניחוש כמו "מחברת" יקבל ציון גבוה יותר מאשר "כיסא".</p>
+                        
+                        <div class="example-table">
+                            <div class="example-row">
+                                <div class="example-cell">מילה</div>
+                                <div class="example-cell">דמיון</div>
+                                <div class="example-cell">אחוזון</div>
+                            </div>
+                            <div class="example-row">
+                                <div class="example-cell"><span class="hot">ספרייה</span></div>
+                                <div class="example-cell"><span class="hot">62.14</span></div>
+                                <div class="example-cell"><span class="hot">91.2%</span></div>
+                            </div>
+                            <div class="example-row">
+                                <div class="example-cell"><span class="warm">מחברת</span></div>
+                                <div class="example-cell"><span class="warm">48.72</span></div>
+                                <div class="example-cell"><span class="warm">76.5%</span></div>
+                            </div>
+                            <div class="example-row">
+                                <div class="example-cell"><span class="cold">שולחן</span></div>
+                                <div class="example-cell"><span class="cold">23.18</span></div>
+                                <div class="example-cell"><span class="cold">42.3%</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="start-playing" class="primary-btn">
+                        <i class="fas fa-play"></i>
+                        התחל לשחק
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toast-container">
+        <!-- Toasts will be added here dynamically -->
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
